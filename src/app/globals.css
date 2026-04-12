@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cyber-black: #020617;
+  --color-cyber-cyan: #22d3ee;
+  --color-cyber-blue: #0ea5e9;
+  --color-cyber-neon: #a5f3fc;
+
+  --animate-glitch: glitch 1s linear infinite;
+  --animate-pulse-slow: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+
+  20% {
+    transform: translate(-2px, 2px);
+  }
+
+  40% {
+    transform: translate(-2px, -2px);
+  }
+
+  60% {
+    transform: translate(2px, 2px);
+  }
+
+  80% {
+    transform: translate(2px, -2px);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --cyan-accent: #22d3ee;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+.glass {
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(34, 211, 238, 0.1);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.glass-premium {
+  background: rgba(5, 10, 30, 0.4);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 0 80px rgba(0, 0, 0, 0.3),
+    0 40px 100px rgba(0, 0, 0, 0.6);
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.text-stroke {
+  -webkit-text-stroke: 1px rgba(34, 211, 238, 0.4);
+}
+
+.neon-glow {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+.neon-border {
+  box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+}
+
+.military-grid {
+  background-image: linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #22d3ee;
+  border-radius: 10px;
+}
