@@ -1,14 +1,17 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Container, Row, Col, Nav, Tab, Form } from "react-bootstrap";
-import { Check, LogIn, X } from "lucide-react";
+import { Container, Row, Col, Tab, Form } from "react-bootstrap";
+import { Check, LogIn, X, Zap, Shield, Globe, Lock } from "lucide-react";
+import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./Pricing.css";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import Script from "next/script";
+import { useRouter } from "next/navigation";
 
-interface Plan {
+interface Plan {  
   id: string;
   title: string;
   price: number;
@@ -55,6 +58,7 @@ export default function BootstrapPricing() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [showSignInAlert, setShowSignInAlert] = useState(false);
 
+  const router = useRouter();
   const paymentSectionRef = useRef<HTMLDivElement>(null);
 
   // Watch Firebase auth state
@@ -67,10 +71,9 @@ export default function BootstrapPricing() {
   }, []);
 
   const handleSelectPlan = (plan: Plan) => {
-    // Block payment if not signed in
+    // Block payment if not signed in - Redirect to login
     if (!user) {
-      setShowSignInAlert(true);
-      setTimeout(() => setShowSignInAlert(false), 4000);
+      router.push("/login?callbackUrl=" + encodeURIComponent(window.location.pathname));
       return;
     }
     setSelectedPlan(plan);
@@ -82,15 +85,72 @@ export default function BootstrapPricing() {
     }, 100);
   };
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedPlan || !user) return;
+
     setIsProcessing(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // 1. Create order on server
+      const response = await fetch("/api/razorpay/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: selectedPlan.price,
+          currency: "INR",
+        }),
+      });
+
+      const order = await response.json();
+
+      if (!response.ok) throw new Error(order.error || "Failed to create order");
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "WOXUS",
+        description: `Subscription for ${selectedPlan.title}`,
+        order_id: order.id,
+        handler: async function (response: any) {
+          // 3. Verify payment on server
+          const verifyRes = await fetch("/api/razorpay/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.verified) {
+            setPaymentSuccess(true);
+            setIsProcessing(false);
+          } else {
+            alert("Payment verification failed!");
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: user.displayName || "",
+          email: user.email || "",
+        },
+        theme: {
+          color: "#a855f7",
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Payment failed:", error);
+      alert("Payment failed. Please try again.");
       setIsProcessing(false);
-      setPaymentSuccess(true);
-    }, 2000);
+    }
   };
 
   return (
@@ -182,110 +242,60 @@ export default function BootstrapPricing() {
                     <h3 className="pricing-title fs-3">Complete Your Subscription</h3>
                   </div>
 
-                  <div className="payment-summary d-flex justify-content-between align-items-center">
-                    <div>
-                      <h5 className="text-white mb-1">{selectedPlan.title}</h5>
+                  <div className="payment-summary d-flex justify-content-between align-items-center p-4 rounded-3xl bg-white/5 border border-white/10 mb-5 shadow-inner">
+                    <div className="d-flex align-items-center gap-3">
+                      <div className="p-3 bg-purple-500/20 rounded-2xl border border-purple-500/30">
+                        <Zap size={24} className="text-purple-400" />
+                      </div>
+                      <div>
+                        <h5 className="text-white mb-0 fw-bold tracking-tight">{selectedPlan.title}</h5>
+                        <p className="text-white-50 mb-0 small uppercase tracking-widest font-bold" style={{ fontSize: '10px' }}>Active Membership</p>
+                      </div>
                     </div>
-                    <h4 className="text-info mb-0 fw-bold">₹{selectedPlan.price}<span className="fs-6 text-white-50 fw-normal">{selectedPlan.durationLabel}</span></h4>
+                    <div className="text-end">
+                      <h4 className="text-info mb-0 fw-black">₹{selectedPlan.price}</h4>
+                      <span className="fs-6 text-white-50 fw-normal uppercase tracking-tighter" style={{ fontSize: '11px' }}>{selectedPlan.durationLabel}</span>
+                    </div>
                   </div>
 
-                  <Tab.Container defaultActiveKey="upi">
-                    <Nav variant="tabs" className="nav-tabs-custom justify-content-center">
-                      <Nav.Item>
-                        <Nav.Link eventKey="upi">UPI PAYMENT</Nav.Link>
-                      </Nav.Item>
-                      <Nav.Item>
-                        <Nav.Link eventKey="card">CARD PAYMENT</Nav.Link>
-                      </Nav.Item>
-                    </Nav>
-
-                    <Tab.Content>
-                      <Tab.Pane eventKey="upi">
-                        <Form onSubmit={handlePayment}>
-                          <Form.Group className="mb-4">
-                            <Form.Label className="form-label">Enter UPI ID</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="example@upi"
-                              className="custom-input"
-                              required
-                              disabled={isProcessing || paymentSuccess}
-                            />
-                          </Form.Group>
-
-                          <button
-                            type="submit"
-                            className="btn btn-pay"
-                            disabled={isProcessing || paymentSuccess}
-                          >
-                            {isProcessing ? "Processing..." : paymentSuccess ? "Verified" : "Pay via UPI"}
-                          </button>
-                        </Form>
-                      </Tab.Pane>
-
-                      <Tab.Pane eventKey="card">
-                        <Form onSubmit={handlePayment}>
-                          <Form.Group className="mb-3">
-                            <Form.Label className="form-label">Card Number</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="0000 0000 0000 0000"
-                              className="custom-input"
-                              required
-                              disabled={isProcessing || paymentSuccess}
-                            />
-                          </Form.Group>
-
-                          <Row>
-                            <Col xs={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="form-label">Expiry Date</Form.Label>
-                                <Form.Control
-                                  type="text"
-                                  placeholder="MM/YY"
-                                  className="custom-input"
-                                  required
-                                  disabled={isProcessing || paymentSuccess}
-                                />
-                              </Form.Group>
-                            </Col>
-                            <Col xs={6}>
-                              <Form.Group className="mb-3">
-                                <Form.Label className="form-label">CVV</Form.Label>
-                                <Form.Control
-                                  type="password"
-                                  placeholder="***"
-                                  className="custom-input"
-                                  maxLength={3}
-                                  required
-                                  disabled={isProcessing || paymentSuccess}
-                                />
-                              </Form.Group>
-                            </Col>
-                          </Row>
-
-                          <Form.Group className="mb-4">
-                            <Form.Label className="form-label">Card Holder Name</Form.Label>
-                            <Form.Control
-                              type="text"
-                              placeholder="John Doe"
-                              className="custom-input"
-                              required
-                              disabled={isProcessing || paymentSuccess}
-                            />
-                          </Form.Group>
-
-                          <button
-                            type="submit"
-                            className="btn btn-pay"
-                            disabled={isProcessing || paymentSuccess}
-                          >
-                            {isProcessing ? "Processing..." : paymentSuccess ? "Verified" : "Pay with Card"}
-                          </button>
-                        </Form>
-                      </Tab.Pane>
-                    </Tab.Content>
-                  </Tab.Container>
+                  <div className="payment-action-container mt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handlePayment}
+                      className="btn-pay-premium w-100"
+                      disabled={isProcessing || paymentSuccess}
+                    >
+                      <div className="relative z-10 flex items-center justify-center gap-3">
+                         {isProcessing ? (
+                           <>
+                             <div className="spinner-border spinner-border-sm text-light" role="status" />
+                             <span className="uppercase tracking-[0.2em] font-bold">Initializing Secure Checkout...</span>
+                           </>
+                         ) : paymentSuccess ? (
+                           <>
+                             <Check size={20} className="text-green-400" />
+                             <span className="uppercase tracking-[0.2em] font-bold">Transaction Complete ✅</span>
+                           </>
+                         ) : (
+                           <>
+                             <Lock size={16} />
+                             <span className="uppercase tracking-[0.2em] font-bold">Unlock Access Now</span>
+                           </>
+                         )}
+                      </div>
+                    </motion.button>
+                    
+                    <div className="d-flex justify-content-center align-items-center gap-4 mt-4 opacity-40">
+                       <Shield size={14} className="text-white" />
+                       <Globe size={14} className="text-white" />
+                       <Lock size={14} className="text-white" />
+                    </div>
+                    
+                    <p className="text-center text-white-50 mt-4 small uppercase tracking-widest font-black" style={{ fontSize: '9px' }}>
+                      Certified Secure Payment Gateway • Powered by Razorpay
+                    </p>
+                  </div>
 
                   {paymentSuccess && (
                     <div className="success-msg">
@@ -299,6 +309,7 @@ export default function BootstrapPricing() {
           </div>
         )}
       </Container>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
     </div>
   );
 }
