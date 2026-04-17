@@ -114,32 +114,6 @@ export default function Home() {
       {/* Ultimate CTA Section */}
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative z-20 py-8 flex justify-center w-full mt-[-20px] mb-12">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-10">
-          {/* Button 1: 4 Days Free Trial with Download */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              if (user) {
-                // Professional download approach to preserve filename
-                const link = document.createElement('a');
-                link.href = "/Woxus_V1.zip";
-                link.download = "Woxus_V1.zip";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              } else {
-                alert("Please Sign In first to download Woxus.");
-              }
-            }}
-            className="relative group cursor-pointer"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 rounded-2xl blur-xl opacity-40 group-hover:opacity-80 transition duration-500 group-hover:animate-pulse"></div>
-            <div className="relative px-8 md:px-10 py-4 md:py-5 bg-[#050b14]/90 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl flex items-center gap-3 overflow-hidden shadow-[inset_0_0_20px_rgba(34,211,238,0.2)]">
-              <Download className="w-5 h-5 text-cyan-400 animate-bounce" />
-              <span className="font-extrabold tracking-widest text-white uppercase text-sm sm:text-base">4 Days Free Trial</span>
-            </div>
-          </motion.button>
-
           {/* Button 2: Set Up WOXUS */}
           <Link href="/setup">
             <motion.button

@@ -11,13 +11,14 @@ import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 
-interface Plan {  
+interface Plan {
   id: string;
   title: string;
   price: number;
   durationShort: string;
   durationLabel: string;
   features: string[];
+  downloadUrl: string;
 }
 
 const plans: Plan[] = [
@@ -34,6 +35,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/Woxus_1M.zip",
   },
   {
     id: "windows-3m",
@@ -48,6 +50,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/Woxus_3M.zip",
   }
 ];
 
@@ -267,39 +270,62 @@ export default function BootstrapPricing() {
                       disabled={isProcessing || paymentSuccess}
                     >
                       <div className="relative z-10 flex items-center justify-center gap-3">
-                         {isProcessing ? (
-                           <>
-                             <div className="spinner-border spinner-border-sm text-light" role="status" />
-                             <span className="uppercase tracking-[0.2em] font-bold">Initializing Secure Checkout...</span>
-                           </>
-                         ) : paymentSuccess ? (
-                           <>
-                             <Check size={20} className="text-green-400" />
-                             <span className="uppercase tracking-[0.2em] font-bold">Transaction Complete ✅</span>
-                           </>
-                         ) : (
-                           <>
-                             <Lock size={16} />
-                             <span className="uppercase tracking-[0.2em] font-bold">Unlock Access Now</span>
-                           </>
-                         )}
+                        {isProcessing ? (
+                          <>
+                            <div className="spinner-border spinner-border-sm text-light" role="status" />
+                            <span className="uppercase tracking-[0.2em] font-bold">Initializing Secure Checkout...</span>
+                          </>
+                        ) : paymentSuccess ? (
+                          <>
+                            <Check size={20} className="text-green-400" />
+                            <span className="uppercase tracking-[0.2em] font-bold">Transaction Complete ✅</span>
+                          </>
+                        ) : (
+                          <>
+                            <Lock size={16} />
+                            <span className="uppercase tracking-[0.2em] font-bold">Unlock Access Now</span>
+                          </>
+                        )}
                       </div>
                     </motion.button>
-                    
+
                     <div className="d-flex justify-content-center align-items-center gap-4 mt-4 opacity-40">
-                       <Shield size={14} className="text-white" />
-                       <Globe size={14} className="text-white" />
-                       <Lock size={14} className="text-white" />
+                      <Shield size={14} className="text-white" />
+                      <Globe size={14} className="text-white" />
+                      <Lock size={14} className="text-white" />
                     </div>
-                    
+
                     <p className="text-center text-white-50 mt-4 small uppercase tracking-widest font-black" style={{ fontSize: '9px' }}>
                       Certified Secure Payment Gateway • Powered by Razorpay
                     </p>
                   </div>
 
                   {paymentSuccess && (
-                    <div className="success-msg">
-                      Payment Successful ✅ (Demo Mode)
+                    <div className="text-center">
+                      <div className="success-msg mb-4">
+                        Payment Successful ✅
+                      </div>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          if (selectedPlan) {
+                            const link = document.createElement('a');
+                            link.href = selectedPlan.downloadUrl;
+                            link.download = selectedPlan.downloadUrl.split('/').pop() || "Woxus.zip";
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                          }
+                        }}
+                        className="btn btn-primary px-5 py-3 rounded-xl font-bold uppercase tracking-wider shadow-lg hover:shadow-blue-500/50"
+                        style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', border: 'none' }}
+                      >
+                        Download Your Woxus Package
+                      </motion.button>
+                      <p className="mt-3 text-white-50 small uppercase tracking-widest" style={{ fontSize: '10px' }}>
+                        Your license for {selectedPlan.title} is now active.
+                      </p>
                     </div>
                   )}
 
