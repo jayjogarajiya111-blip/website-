@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Cpu, Shield, Zap, Globe, Download } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import { auth } from "@/lib/firebase";
@@ -111,25 +111,6 @@ export default function Home() {
         <BootstrapPricing />
       </motion.div>
 
-      {/* Ultimate CTA Section */}
-      <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative z-20 py-8 flex justify-center w-full mt-[-20px] mb-12">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 md:gap-10">
-          {/* Button 2: Set Up WOXUS */}
-          <Link href="/setup">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative group cursor-pointer"
-            >
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 rounded-2xl blur opacity-60 group-hover:opacity-100 group-hover:blur-lg transition duration-300"></div>
-              <div className="relative px-8 md:px-10 py-4 md:py-5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl flex items-center gap-3 border border-purple-400/50">
-                <Zap className="w-5 h-5 md:w-6 md:h-6 text-yellow-300 fill-yellow-300 drop-shadow-[0_0_15px_rgba(253,224,71,0.8)]" />
-                <span className="font-extrabold tracking-widest text-white uppercase text-sm sm:text-base text-shadow-sm">Set Up Woxus</span>
-              </div>
-            </motion.button>
-          </Link>
-        </div>
-      </motion.div>
 
       {/* Testimonials */}
       <motion.div variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>

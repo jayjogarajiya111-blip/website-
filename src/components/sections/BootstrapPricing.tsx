@@ -35,7 +35,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
-    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/Woxus_1M.zip",
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.4.zip",
   },
   {
     id: "windows-3m",
@@ -50,7 +50,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
-    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/Woxus_3M.zip",
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.4.zip",
   }
 ];
 
