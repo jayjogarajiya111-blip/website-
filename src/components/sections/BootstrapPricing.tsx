@@ -25,7 +25,7 @@ const plans: Plan[] = [
   {
     id: "windows-1m",
     title: "Windows Plan (1 Month)",
-    price: 299,
+    price: 99,
     durationShort: "/ month",
     durationLabel: "/mo",
     features: [
@@ -35,12 +35,12 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
-    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.4.zip",
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.5.zip",
   },
   {
     id: "windows-3m",
     title: "Windows Plan (3 Months)",
-    price: 549,
+    price: 249,
     durationShort: "/ 3 months",
     durationLabel: "/3mo",
     features: [
@@ -50,7 +50,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
-    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.4.zip",
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.5.zip",
   }
 ];
 

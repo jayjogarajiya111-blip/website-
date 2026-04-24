@@ -9,6 +9,14 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const MicrosoftStrategy = require('passport-microsoft').Strategy;
 const jwt = require('jsonwebtoken');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const admin = require('firebase-admin');
+const crypto = require('crypto');
+
+// Initialize Firebase Admin
+admin.initializeApp({
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'woxus-ai'
+});
+const db = admin.firestore();
 
 const app = express();
 
@@ -184,6 +192,88 @@ app.post('/api/feedback', verifyToken, async (req, res) => {
     res.status(201).json({ success: true, feedback });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// =====================
+// Woxus Subscription Logic
+// =====================
+
+/**
+ * WOXUS TOKEN GENERATOR LOGIC
+ * Generates a unique token and saves it to Firestore.
+ */
+async function activateWoxusSubscription(userEmail, planType) {
+  // 1. Unique Token banavo (WOXUS-XXXX-XXXX)
+  const token = `WOXUS-${crypto.randomBytes(4).toString('hex').toUpperCase().match(/.{1,4}/g).join('-')}`;
+
+  const now = admin.firestore.Timestamp.now();
+  const days = planType === '3month' ? 90 : 30;
+  const subEnd = admin.firestore.Timestamp.fromDate(new Date(Date.now() + days * 24 * 60 * 60 * 1000));
+
+  // 2. Firebase ma 'tokens' ma save karo (EXE mate)
+  await db.collection('tokens').doc(token).set({
+    token: token,
+    userId: userEmail,
+    subscriptionPlan: planType,
+    subscriptionEnd: subEnd,
+    isActive: true,
+    createdAt: now
+  });
+
+  // 3. User na personal record ma update karo (UI mate)
+  await db.collection('subscriptions').doc(userEmail).set({
+    userId: userEmail,
+    plan: planType,
+    endDate: subEnd,
+    isActive: true,
+    currentToken: token
+  }, { merge: true });
+
+  return token;
+}
+
+/**
+ * Stripe/Razorpay Webhook Handler
+ */
+app.post('/stripe-webhook', async (req, res) => {
+  // Note: In production, you should verify the payment signature.
+  try {
+    const { customerEmail, planType } = req.body;
+
+    if (!customerEmail) {
+      return res.status(400).json({ error: "Missing customerEmail" });
+    }
+
+    const token = await activateWoxusSubscription(customerEmail, planType || '1month');
+
+    console.log("User activated with token:", token);
+    res.json({ success: true, token });
+  } catch (error) {
+    console.error("Webhook Error:", error);
+    res.status(500).json({ error: "Webhook failed" });
+  }
+});
+
+/**
+ * Fetch current user's subscription token
+ */
+app.get('/api/subscription/my-token', verifyToken, async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    const subDoc = await db.collection('subscriptions').doc(userEmail).get();
+
+    if (!subDoc.exists) {
+      return res.status(404).json({ error: "No active subscription found" });
+    }
+
+    res.json({
+      success: true,
+      ...subDoc.data()
+    });
+  } catch (error) {
+    console.error("Fetch Subscription Error:", error);
+    res.status(500).json({ error: "Failed to fetch subscription" });
   }
 });
 
