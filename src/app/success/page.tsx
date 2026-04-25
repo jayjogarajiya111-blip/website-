@@ -149,15 +149,28 @@ export default function SuccessPage() {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button
+                            onClick={() => {
+                                const link = document.createElement('a');
+                                link.href = "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.6.zip";
+                                link.download = "Woxus_V1.zip";
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }}
+                            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-cyber-cyan to-blue-500 text-black rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+                        >
+                            <Download className="w-4 h-4" /> Download Woxus ZIP
+                        </button>
                         <Link
                             href="/setup"
-                            className="flex items-center justify-center gap-2 px-8 py-4 bg-white text-black rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:bg-cyber-cyan active:scale-95"
+                            className="flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border border-white/20 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:bg-white/20 active:scale-95"
                         >
                             <Terminal className="w-4 h-4" /> Setup Instructions
                         </Link>
                         <Link
                             href="/"
-                            className="flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 text-white/70 rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:bg-white/10 active:scale-95"
+                            className="flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 text-white/50 rounded-2xl font-black text-sm uppercase tracking-widest transition-all hover:bg-white/10 active:scale-95"
                         >
                             Back to Home <ArrowRight className="w-4 h-4" />
                         </Link>
