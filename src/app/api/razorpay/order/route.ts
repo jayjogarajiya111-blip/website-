@@ -8,7 +8,7 @@ const razorpay = new Razorpay({
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, currency = "INR" } = await request.json();
+    const { amount, currency = "INR", email, planId } = await request.json();
 
     if (!amount) {
       return NextResponse.json(
@@ -21,6 +21,10 @@ export async function POST(request: NextRequest) {
       amount: Math.round(amount * 100), // amount in the smallest currency unit (paise)
       currency,
       receipt: `receipt_${Date.now()}`,
+      notes: {
+        email: email,
+        planId: planId,
+      },
     };
 
     const order = await razorpay.orders.create(options);

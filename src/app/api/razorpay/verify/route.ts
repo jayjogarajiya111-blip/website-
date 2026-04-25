@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import Razorpay from "razorpay";
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,8 +20,28 @@ export async function POST(request: NextRequest) {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      // Payment is verified
-      // TODO: Update user subscription in database here
+      // 1. Fetch order to get notes
+      const order = await razorpay.orders.fetch(razorpay_order_id);
+      const { email, planId } = order.notes as any;
+
+      // 2. Map planId to backend planType
+      const planType = planId === "windows-3m" ? "3month" : "1month";
+
+      // 3. Call backend to activate subscription
+      // Note: Using localhost:5000 for local development, should be an env var for prod
+      const backendResponse = await fetch("http://localhost:5000/stripe-webhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerEmail: email,
+          planType: planType,
+        }),
+      });
+
+      if (!backendResponse.ok) {
+        console.error("Backend activation failed");
+      }
+
       return NextResponse.json({ verified: true });
     } else {
       return NextResponse.json(

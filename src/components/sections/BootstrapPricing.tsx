@@ -35,7 +35,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
-    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.5.zip",
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.6.zip",
   },
   {
     id: "windows-3m",
@@ -50,7 +50,7 @@ const plans: Plan[] = [
       "Smart Chat",
       "Basic Support",
     ],
-    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.5.zip",
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.6.zip",
   }
 ];
 
@@ -102,6 +102,8 @@ export default function BootstrapPricing() {
         body: JSON.stringify({
           amount: selectedPlan.price,
           currency: "INR",
+          email: user.email,
+          planId: selectedPlan.id,
         }),
       });
 
@@ -133,6 +135,8 @@ export default function BootstrapPricing() {
           if (verifyData.verified) {
             setPaymentSuccess(true);
             setIsProcessing(false);
+            // Redirect to success page to show token
+            router.push('/success');
           } else {
             alert("Payment verification failed!");
             setIsProcessing(false);
