@@ -138,15 +138,34 @@ app.get('/api/auth/microsoft/callback', passport.authenticate('microsoft', { ses
 });
 
 const verifyToken = async (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super-secret');
-    req.user = await User.findById(decoded.id);
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid token' });
+  const authHeader = req.headers.authorization;
+  const cookieToken = req.cookies.token;
+
+  // 1. Try Firebase Token (Authorization Header)
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const idToken = authHeader.split('Bearer ')[1];
+    try {
+      const decodedToken = await admin.auth().verifyIdToken(idToken);
+      req.user = { email: decodedToken.email, uid: decodedToken.uid };
+      return next();
+    } catch (err) {
+      console.error("Firebase Token Verification Failed:", err);
+      return res.status(401).json({ error: 'Invalid Firebase token' });
+    }
   }
+
+  // 2. Try JWT Cookie (Legacy/Alternative)
+  if (cookieToken) {
+    try {
+      const decoded = jwt.verify(cookieToken, process.env.JWT_SECRET || 'super-secret');
+      req.user = await User.findById(decoded.id);
+      if (req.user) return next();
+    } catch (err) {
+      console.error("JWT Verification Failed:", err);
+    }
+  }
+
+  return res.status(401).json({ error: 'Unauthorized' });
 };
 
 app.get('/api/auth/me', verifyToken, (req, res) => {

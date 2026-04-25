@@ -9,6 +9,8 @@ import {
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Background from "@/components/visuals/Background";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 interface SubscriptionData {
     success: boolean;
@@ -27,17 +29,35 @@ export default function SuccessPage() {
     useEffect(() => {
         const fetchToken = async () => {
             try {
-                // Fetching from the Express backend on port 5000
-                const res = await fetch('http://localhost:5000/api/subscription/my-token');
-                const data = await res.json();
-                if (data.success) {
-                    setSubData(data);
-                } else {
-                    setError("Could not find your latest token. Please check again in a moment.");
-                }
+                // Wait for auth to initialize or change
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        try {
+                            const idToken = await user.getIdToken();
+                            // Fetching from the Express backend on port 5000
+                            const res = await fetch('http://localhost:5000/api/subscription/my-token', {
+                                headers: {
+                                    'Authorization': `Bearer ${idToken}`
+                                }
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                setSubData(data);
+                            } else {
+                                setError("Could not find your latest token. Please check again in a moment.");
+                            }
+                        } catch (err) {
+                            setError("Error verifying your session. Please try logging in again.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    } else {
+                        setError("You must be logged in to view your token.");
+                        setLoading(false);
+                    }
+                });
             } catch (err) {
                 setError("Failed to reach the server. Please try refreshing.");
-            } finally {
                 setLoading(false);
             }
         };
