@@ -28,8 +28,8 @@ export async function POST(request: NextRequest) {
       const planType = planId === "windows-3m" ? "3month" : "1month";
 
       // 3. Call backend to activate subscription
-      // Note: Using localhost:5000 for local development, should be an env var for prod
-      const backendResponse = await fetch("http://localhost:5000/stripe-webhook", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const backendResponse = await fetch(`${apiUrl}/stripe-webhook`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

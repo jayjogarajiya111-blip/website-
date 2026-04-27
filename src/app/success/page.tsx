@@ -35,7 +35,8 @@ export default function SuccessPage() {
                         try {
                             const idToken = await user.getIdToken();
                             // Fetching from the Express backend on port 5000
-                            const res = await fetch('http://localhost:5000/api/subscription/my-token', {
+                            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://woxus.tech';
+                            const res = await fetch(`${apiUrl}/api/subscription/my-token`, {
                                 headers: {
                                     'Authorization': `Bearer ${idToken}`
                                 }

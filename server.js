@@ -23,7 +23,15 @@ const app = express();
 // =====================
 // Middleware
 // =====================
-app.use(cors({ origin: 'http://localhost:5173', credentials: true })); // Adjust frontend URL
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5173',
+    'https://woxus.tech'
+  ],
+  credentials: true
+})); // Allow Next.js, Vite, and Production domain
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({ secret: 'woxus-session-secret', resave: false, saveUninitialized: true }));
