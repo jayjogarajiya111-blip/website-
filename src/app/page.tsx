@@ -57,28 +57,27 @@ export default function Home() {
           <AssistantAvatar type={assistant} isListening={isListening} />
         </div>
 
-        {/* Central Visual Assembly */}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-7xl px-6">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5 }}
-            className="relative w-full max-w-4xl aspect-square flex items-center justify-center"
-          >
-            {/* Saturn Technical Component */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <SaturnVisual />
-            </div>
+          {/* Central Visual Assembly */}
+          <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-7xl px-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.5 }}
+              className="relative w-full max-w-4xl aspect-square flex items-center justify-center"
+            >
+              {/* Saturn Technical Component */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <SaturnVisual />
+              </div>
 
-            {/* The Floating Woxus Logo */}
-            <div className="relative z-10">
-              <WoxusLogo />
-            </div>
+              {/* The Floating Woxus Logo */}
+              <div className="relative z-10">
+                <WoxusLogo />
+              </div>
 
-            {/* Mic Button Removed As Requested */}
-          </motion.div>
-
-        </div>
+              {/* Mic Button Removed As Requested */}
+            </motion.div>
+          </div>
         <motion.div
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}

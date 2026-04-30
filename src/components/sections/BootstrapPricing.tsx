@@ -23,6 +23,21 @@ interface Plan {
 
 const plans: Plan[] = [
   {
+    id: "free-trial",
+    title: "Free Trial",
+    price: 0,
+    durationShort: "/ limited",
+    durationLabel: "/trial",
+    features: [
+      "Full AI Command Access",
+      "Voice Control",
+      "Automation Tools",
+      "Smart Chat",
+      "Basic Support",
+    ],
+    downloadUrl: "https://github.com/jayjogarajiya111-blip/website-/releases/download/v1.0/WOXUS_V.1.Setup.1.5.4.zip",
+  },
+  {
     id: "windows-1m",
     title: "Windows Plan (1 Month)",
     price: 99,
@@ -211,7 +226,7 @@ export default function BootstrapPricing() {
         {/* Pricing Cards */}
         <Row className="justify-content-center g-4">
           {plans.map((plan) => (
-            <Col md={6} lg={5} key={plan.id}>
+            <Col md={6} lg={4} key={plan.id}>
               <div className={`pricing-card ${selectedPlan?.id === plan.id ? 'selected-card' : ''}`}>
 
                 <h3 className="plan-title">{plan.title}</h3>
@@ -228,12 +243,29 @@ export default function BootstrapPricing() {
                   ))}
                 </ul>
 
-                <button
-                  className="btn btn-select-plan"
-                  onClick={() => handleSelectPlan(plan)}
-                >
-                  {selectedPlan?.id === plan.id ? "Selected" : "Select Plan"}
-                </button>
+                {plan.id === "free-trial" ? (
+                  <button
+                    className="btn btn-select-plan"
+                    style={{ background: 'linear-gradient(135deg, #06b6d4, #3b82f6)' }}
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = plan.downloadUrl;
+                      link.download = "WOXUS_V.1.Setup.1.7.1.zip";
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                  >
+                    Download Now
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-select-plan"
+                    onClick={() => handleSelectPlan(plan)}
+                  >
+                    {selectedPlan?.id === plan.id ? "Selected" : "Select Plan"}
+                  </button>
+                )}
               </div>
             </Col>
           ))}
